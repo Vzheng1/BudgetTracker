@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
-
+# Helper function for default timestamps
 def now():
     return datetime.now(timezone.utc)
 

@@ -6,6 +6,8 @@ from app.models import models
 from app.core.config import settings
 from app.api.routes import auth
 
+# Function that runs on startup and shutdown - Everything before "yield" runs at startup and after runs at shutdown
+#   - asynccontextmanager makes it work with FastAPI's lifespan system
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
@@ -13,8 +15,11 @@ async def lifespan(app: FastAPI):
     yield
     await engine.dispose()
 
+# Create the FastAPI application that connects to our startup/shutdown function
 app = FastAPI(title="Budget Tracker API", lifespan=lifespan)
 
+# Add CORS middleware to allow requests from the frontend
+#   - This is important for security and to allow our frontend to communicate with the backend without getting blocked
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -23,8 +28,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Register the auth router so all routes in auth.py are available under /api/v1/auth/
 app.include_router(auth.router, prefix=settings.api_prefix)
 
+
+# Health check endpoint - Used by Railway/Docker to verify the app is running
 @app.get("/health")
 def health():
     return {"status": "ok"}
