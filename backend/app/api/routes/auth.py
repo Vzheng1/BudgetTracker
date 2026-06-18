@@ -134,4 +134,5 @@ async def get_me(current_user: User = Depends(get_current_user)):
         "name": current_user.name,
         "picture": current_user.picture,
         "gmail_connected": current_user.gmail_connected,
+        "last_synced_at": current_user.last_synced_at.isoformat() if current_user.last_synced_at else None,
     }

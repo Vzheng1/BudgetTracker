@@ -7,6 +7,7 @@ export type User = {
     name: string
     picture?: string
     gmail_connected: boolean
+    last_synced_at?: string | null
 }
 
 /* Transaction - Represents each individual transaction from email receipts*/

@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth"
 import { authApi, emailApi } from "@/lib/api"
 
 export default function SettingsPage() {
-    const {user, loading, logout} = useAuth()
+    const {user, loading, logout, refreshUser} = useAuth()
     const [syncing, setSyncing] = useState(false)
     const [message, setMessage] = useState("")
 
@@ -23,6 +23,7 @@ export default function SettingsPage() {
             setSyncing(true)
             setMessage("")
             await emailApi.sync()
+            await refreshUser()
             setMessage("Sync started - check back in a moment")
         } catch (err) {
             setMessage("Failed to start sync")
@@ -135,8 +136,15 @@ export default function SettingsPage() {
                 </span>
             </div>
             <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Frequency</span>
-                <span className="text-white">Every 5 minutes</span>
+                <span className="text-slate-400">Last synced</span>
+                <span className="text-white">
+                {user?.last_synced_at
+                    ? new Date(user.last_synced_at).toLocaleString("en-US", {
+                        month: "short", day: "numeric", year: "numeric",
+                        hour: "numeric", minute: "2-digit",
+                    })
+                    : "Never"}
+                </span>
             </div>
             </div>
 
