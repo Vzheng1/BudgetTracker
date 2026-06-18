@@ -1,3 +1,5 @@
+import { Budget } from "@/types"
+
 // Base URL for API calls to the backend
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
@@ -85,7 +87,7 @@ export const budgetsApi = {
 
     // (2) Creates a new budget for a category
     create: (data: { category: string; limit_amount: number }) =>
-        request("/api/v1/budgets", {
+        request<Budget>("/api/v1/budgets", {
             method: "POST",
             body: JSON.stringify(data),
         }),
