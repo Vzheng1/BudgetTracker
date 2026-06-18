@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine, Base
 from app.models import models
 from app.core.config import settings
-from app.api.routes import auth
+from app.api.routes import auth, transactions
 
 # Function that runs on startup and shutdown - Everything before "yield" runs at startup and after runs at shutdown
 #   - asynccontextmanager makes it work with FastAPI's lifespan system
@@ -28,8 +28,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register the auth router so all routes in auth.py are available under /api/v1/auth/
+# Register all routers so all routes are available under /api/v1/auth/
 app.include_router(auth.router, prefix=settings.api_prefix)
+app.include_router(transactions.router, prefix=settings.api_prefix)
 
 
 # Health check endpoint - Used by Railway/Docker to verify the app is running
