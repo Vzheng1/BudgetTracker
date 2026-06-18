@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, literal
 from datetime import datetime, timezone, timedelta
 from app.db.session import get_db
 from app.api.deps import get_current_user
@@ -143,18 +143,16 @@ async def get_dashboard(
     )
 
     # ── Monthly trend (last 12 months) ───────────────────────────────────────────
+    ym = func.to_char(Transaction.date, literal('YYYY-MM'))
     trend_result = await db.execute(
-        select(
-            func.to_char(Transaction.date, 'YYYY-MM').label("month"),
-            func.sum(Transaction.amount).label("total")
-        )
+        select(ym.label("month"), func.sum(Transaction.amount).label("total"))
         .where(
             Transaction.user_id == current_user.id,
             Transaction.date >= now - timedelta(days=365),
             Transaction.deleted_at == None,
         )
-        .group_by(func.to_char(Transaction.date, 'YYYY-MM'))
-        .order_by(func.to_char(Transaction.date, 'YYYY-MM'))
+        .group_by(ym)
+        .order_by(ym)
     )
     monthly_trend = [
         {"month": row.month, "total": float(row.total)}
