@@ -12,3 +12,8 @@ passlib[bcrypt]==1.7.4
 httpx==0.27.0
 
 python-multipart==0.0.9
+
+google-api-python-client==2.128.0
+google-auth-oauthlib==1.2.0
+google-auth-httplib2==0.2.0
+google-auth==2.29.0

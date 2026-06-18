@@ -21,10 +21,10 @@ GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
 
 # Scopes (Tells Google what permissions we need)
-# openid - basic id; required for OAuth
-# userinfo.email - email address
-# userinfo.profile - basic profile info like name and profile picture
-# gmail.readonly - read-only access to Gmail (for getting receipts from emails)
+#   openid - basic id; required for OAuth
+#   userinfo.email - email address
+#   userinfo.profile - basic profile info like name and profile picture
+#   gmail.readonly - read-only access to Gmail (for getting receipts from emails)
 SCOPES = " ".join([
     "openid",
     "https://www.googleapis.com/auth/userinfo.email",
@@ -100,6 +100,7 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
             picture=google_user.get("picture"),
             google_id=google_user["id"],
             oauth_token=tokens,
+            gmail_connected=True,
         )
         db.add(user)
     # (3b) If user exists -> Have logged in before -> Update their tokens and profile information
@@ -107,6 +108,7 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
         user.oauth_token = tokens
         user.name = google_user.get("name")
         user.picture = google_user.get("picture")
+        user.gmail_connected = True
 
     # (3c) Save these changes to the database
     await db.commit()

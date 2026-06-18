@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, String, Text, JSON, Numeric, Integer
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, String, Text, JSON, Numeric, Integer, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.db.session import Base
@@ -96,3 +96,5 @@ class ProcessedEmail(Base):
     email_id = Column(String, nullable=False)
     processed_at = Column(DateTime(timezone=True), default=now)
     was_receipt = Column(Boolean, default=False)
+
+    __table_args__ = (UniqueConstraint("user_id", "email_id", name="_user_email_uc"),)

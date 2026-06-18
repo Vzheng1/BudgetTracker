@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine, Base
 from app.models import models
 from app.core.config import settings
-from app.api.routes import auth, transactions, budgets, dashboard
+from app.api.routes import auth, transactions, budgets, dashboard, emails
 
 # Function that runs on startup and shutdown - Everything before "yield" runs at startup and after runs at shutdown
 #   - asynccontextmanager makes it work with FastAPI's lifespan system
@@ -33,6 +33,7 @@ app.include_router(auth.router, prefix=settings.api_prefix)
 app.include_router(transactions.router, prefix=settings.api_prefix)
 app.include_router(budgets.router, prefix=settings.api_prefix)
 app.include_router(dashboard.router, prefix=settings.api_prefix)
+app.include_router(emails.router, prefix=settings.api_prefix)
 
 # Health check endpoint - Used by Railway/Docker to verify the app is running
 @app.get("/health")
