@@ -26,14 +26,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const token = localStorage.getItem("access_token")
         if (!token) {
-        setLoading(false)
-        return
+            setLoading(false)
+            return
         }
 
         authApi.getMe()
-        .then(setUser)
-        .catch(() => localStorage.removeItem("access_token"))
-        .finally(() => setLoading(false))
+            .then((data) => {
+                setUser(data)
+            })
+            .catch(() => {
+                localStorage.removeItem("access_token")
+            })
+            .finally(() => setLoading(false))
     }, [])
 
     const logout = () => {
