@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func, or_
 from sqlalchemy.orm import selectinload
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 from typing import Optional
 from app.db.session import get_db
@@ -30,8 +30,16 @@ class CategoryCorrection(BaseModel):
 # GET a list of all transactions
 @router.get("")
 async def list_transactions(
+    search: Optional[str] = Query(None),
     category: Optional[str] = None,
     needs_review: Optional[bool] = None,
+    period: Optional[str] = Query(None),
+    date_from: Optional[str] = Query(None),
+    date_to: Optional[str] = Query(None),
+    sort_by: str = Query("date"),
+    sort_dir: str = Query("desc"),
+    limit: int = Query(25),
+    offset: int = Query(0),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -48,17 +56,82 @@ async def list_transactions(
         .order_by(Transaction.date.desc())  
     )
 
+    # Search should match either merchant or description
+    if search:
+        query = query.where(
+            or_(
+                Transaction.merchant.ilike(f"%{search}%"),
+                Transaction.description.ilike(f"%{search}%"),
+            )
+        )
+
     # Apply optional filters if provided
     if category:
         query = query.where(Transaction.category == category)
     if needs_review is not None:
         query = query.where(Transaction.needs_review == needs_review)
 
+    # Time period filter
+    if period:
+        now = datetime.now(timezone.utc)
+        period_map = {
+            "7d":   now - timedelta(days=7),
+            "30d":  now - timedelta(days=30),
+            "90d":  now - timedelta(days=90),
+            "180d": now - timedelta(days=180),
+            "1y":   now - timedelta(days=365),
+        }
+        if period in period_map:
+            query = query.where(Transaction.date >= period_map[period])
+    
+    # Custom date range
+    if date_from:
+        try:
+            query = query.where(
+                Transaction.date >= datetime.fromisoformat(date_from).replace(tzinfo=timezone.utc)
+            )
+        except ValueError:
+            pass
+    if date_to:
+        try:
+            query = query.where(
+                Transaction.date <= datetime.fromisoformat(date_to).replace(tzinfo=timezone.utc)
+            )
+        except ValueError:
+            pass
+
+    # Get total count before pagination (for frontend to know total pages)
+    count_result = await db.execute(
+        select(func.count()).select_from(query.subquery())
+    )
+    total_count = count_result.scalar() or 0
+
+    # Sorting
+    sort_col_map = {
+        "date":     Transaction.date,
+        "merchant": Transaction.merchant,
+        "amount":   Transaction.amount,
+        "category": Transaction.category,
+    }
+    sort_col = sort_col_map.get(sort_by, Transaction.date)
+    if sort_dir == "asc":
+        query = query.order_by(sort_col.asc())
+    else:
+        query = query.order_by(sort_col.desc())
+
+    # Pagination
+    query = query.limit(limit).offset(offset)
+
     result = await db.execute(query)
     transactions = result.scalars().all()
 
     # Format each transaction as a dictionary for the JSON response
-    return [_format_transaction(t) for t in transactions]
+    return {
+        "total": total_count,
+        "limit": limit,
+        "offset": offset,
+        "transactions": [_format_transaction(t) for t in transactions],
+    }
 
 
 # Create a new transaction in the backend

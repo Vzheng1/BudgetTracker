@@ -32,10 +32,15 @@ Fetch recent emails from the user's Gmail inbox.
 
 Returns a list of email dicts with sender, subject, and body.
 """
-async def fetch_recent_emails(user: User, max_results: int = 200) -> list[dict]:
+async def fetch_recent_emails(user: User, since: datetime=None) -> list[dict]:
     try:
         # Get the Gmail API client
         service = _get_gmail_service(user)
+
+        if since:
+            after_date = since.strftime("%Y/%m/%d")
+        else:
+            after_date = (datetime.now() - timedelta(days=365)).strftime("%Y/%m/%d")
 
         # Gmail search query — narrows to emails likely to be receipts
         query = " OR ".join([
@@ -48,15 +53,29 @@ async def fetch_recent_emails(user: User, max_results: int = 200) -> list[dict]:
             "subject:ordered",
             
         ])
+        query = f"{query} after:{after_date}"
 
-        # Get a list of matching message IDs -> Will fetch the email content separately
-        results = service.users().messages().list(
-            userId="me",
-            q=query,
-            maxResults=max_results,
-        ).execute()
+        # Paginate through ALL results — no cap
+        messages = []
+        page_token = None
 
-        messages = results.get("messages", [])
+        while True:
+            params = {
+                "userId": "me",
+                "q": query,
+                "maxResults": 500,
+            }
+            if page_token:
+                params["pageToken"] = page_token
+
+            results = service.users().messages().list(**params).execute()
+            page_messages = results.get("messages", [])
+            messages.extend(page_messages)
+
+            page_token = results.get("nextPageToken")
+            if not page_token:
+                break
+        
         if not messages:
             return []
 

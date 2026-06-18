@@ -21,7 +21,7 @@ export default function TransactionsPage() {
             setLoading(true)
             // If a new category is selected, the category must be passed
             const data = await transactionsApi.list(categoryFilter ? { category: categoryFilter } : undefined)
-            setTransactions(data)
+            setTransactions(data.transactions)
 
             } catch (err) {
                 setError("Failed to load transactions")

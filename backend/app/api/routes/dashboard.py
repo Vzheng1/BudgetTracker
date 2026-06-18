@@ -142,6 +142,25 @@ async def get_dashboard(
         if total_last_month > 0 else 0
     )
 
+    # ── Monthly trend (last 12 months) ───────────────────────────────────────────
+    trend_result = await db.execute(
+        select(
+            func.to_char(Transaction.date, 'YYYY-MM').label("month"),
+            func.sum(Transaction.amount).label("total")
+        )
+        .where(
+            Transaction.user_id == current_user.id,
+            Transaction.date >= now - timedelta(days=365),
+            Transaction.deleted_at == None,
+        )
+        .group_by(func.to_char(Transaction.date, 'YYYY-MM'))
+        .order_by(func.to_char(Transaction.date, 'YYYY-MM'))
+    )
+    monthly_trend = [
+        {"month": row.month, "total": float(row.total)}
+        for row in trend_result.all()
+    ]
+
     return {
         "total_this_month": round(total_this_month, 2),
         "total_last_month": round(total_last_month, 2),
@@ -153,4 +172,5 @@ async def get_dashboard(
         "recent_transactions": recent_transactions,
         "budgets": budget_data,
         "insights": insights,
+        "monthly_trend": monthly_trend,
     }

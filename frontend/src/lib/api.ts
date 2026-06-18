@@ -63,7 +63,7 @@ export const transactionsApi = {
         const query = new URLSearchParams()
         if (params?.category) query.set("category", params.category)
         if (params?.needs_review) query.set("needs_review", "true")
-        return request<any[]>(`/api/v1/transactions?${query}`)
+        return request<{ total: number; limit: number; offset: number; transactions: any[] }>(`/api/v1/transactions?${query}`)
     },
 
     // (2) Submits a manual category correction for a transaction

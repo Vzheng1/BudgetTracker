@@ -28,8 +28,13 @@ Returns stats about what was processed.
 async def sync_emails(user: User, db: AsyncSession) -> dict:
     stats = {"fetched": 0, "processed": 0, "skipped": 0, "failed": 0}
 
+    # Get the last synced timestamp and update that timestamp since we are resyncing
+    since = user.last_synced_at
+    user.last_synced_at = datetime.now(timezone.utc)
+    await db.commit()
+
     # (1) Fetch emails from Gmail. Go through each email and process it.
-    emails = await fetch_recent_emails(user)
+    emails = await fetch_recent_emails(user, since=since)
     stats["fetched"] = len(emails)
 
     for email in emails:
@@ -69,7 +74,7 @@ async def sync_emails(user: User, db: AsyncSession) -> dict:
                 await db.flush()
             except IntegrityError:
                 await db.rollback()
-                stats["failed"] += 1
+                stats["skipped"] += 1
                 continue
 
             if not is_receipt:

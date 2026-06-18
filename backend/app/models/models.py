@@ -20,6 +20,7 @@ class User(Base):
     google_id = Column(String, unique=True)
     oauth_token = Column(JSON)
     gmail_connected = Column(Boolean, default=False)
+    last_synced_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=now)
     updated_at = Column(DateTime(timezone=True), default=now, onupdate=now)
 

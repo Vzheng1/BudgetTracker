@@ -1,5 +1,5 @@
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -8,6 +8,7 @@ from app.core.security import create_access_token
 from app.db.session import get_db
 from app.models.models import User
 from app.api.deps import get_current_user
+from app.api.routes.emails import run_sync_with_new_session
 
 # Groups all related endpoints together -> all routes starting with /auth
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -56,7 +57,7 @@ def get_google_url():
 
 # After user successfully logins in, Google redirects them here using the one time code in the URL - Must be excahnges immediately
 @router.get("/google/callback")
-async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
+async def google_callback(code: str, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     # (1) Exchange the code for tokens by sending client_id and client_secret in a POST request to the Google token endpoint
     #   - Make sure the response is valid (200), else exception
     #   - Token response should include access_token (short-lived, call Google API NOW) and refresh_token (long-lived, use to get new access tokens)
@@ -116,7 +117,9 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
 
     # (4) Create JWT token for the user (for our own app) + Redirect browser to frontend with the JWT in URL
     #   - This JWT token will be used to authenticate the user in our app so frontend will store it
+    # Run email sync in background after login
     jwt_token = create_access_token(str(user.id))
+    background_tasks.add_task(run_sync_with_new_session, str(user.id)) 
     return RedirectResponse(url=f"{settings.frontend_url}/auth/callback?token={jwt_token}")
 
 
