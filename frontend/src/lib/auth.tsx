@@ -4,18 +4,21 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { authApi } from "./api"
 import { User } from "@/types"
 
+// Context type for authentication
 type AuthContextType = {
     user: User | null
     loading: boolean
     logout: () => void
     }
 
+// Create the AuthContext - Creates a global store that any component can read from
 const AuthContext = createContext<AuthContextType>({
     user: null,
     loading: true,
     logout: () => {},
 })
 
+// AuthProvider wraps the entire app - Any component inside it can call useAuth() to get the user
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
@@ -46,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
 }
 
+// Custom hook - components call useAuth() instead of useContext(AuthContext)
 export function useAuth() {
     return useContext(AuthContext)
 }
