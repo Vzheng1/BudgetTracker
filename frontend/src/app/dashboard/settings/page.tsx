@@ -68,14 +68,14 @@ export default function SettingsPage() {
                             </div>
                         )}
                         <div>
-                            <p className="text-white font-semibold text-sm">{user?.name}</p>
-                            <p className="text-slate-400 text-xs mt-0.5">{user?.email}</p>
+                            <p className="text-white font-semibold text-base">{user?.name}</p>
+                            <p className="text-slate-400 text-sm mt-0.5">{user?.email}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
                         <button
                             onClick={logout}
-                            className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium"
+                            className="text-base text-red-400 hover:text-red-300 transition-colors font-medium"
                         >
                             Sign out
                         </button>
@@ -97,7 +97,7 @@ export default function SettingsPage() {
                                 </svg>
                             </div>
                             <div>
-                                <p className="text-white text-sm font-semibold">Gmail Connection</p>
+                                <p className="text-white text-base font-semibold">Gmail Connection</p>
                                 <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium mt-0.5 ${
                                     user?.gmail_connected
                                         ? "bg-emerald-500/20 text-emerald-400"
@@ -109,13 +109,13 @@ export default function SettingsPage() {
                             </div>
                         </div>
                     </div>
-                    <p className="text-slate-400 text-xs mb-4">
+                    <p className="text-slate-400 text-sm mb-4">
                         {user?.gmail_connected
                             ? "Your Gmail is securely connected. We automatically scan your receipts and import them as transactions in real-time."
                             : "Connect Gmail to automatically import receipts and track your spending."}
                     </p>
                     {user?.gmail_connected ? (
-                        <button className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium border border-red-400/30 hover:border-red-400/60 px-3 py-1.5 rounded-lg">
+                        <button className="text-base text-red-400 hover:text-red-300 transition-colors font-medium border border-red-400/30 hover:border-red-400/60 px-3 py-1.5 rounded-lg">
                             Disconnect
                         </button>
                     ) : (
@@ -137,18 +137,18 @@ export default function SettingsPage() {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg>
                             </div>
-                            <p className="text-white text-sm font-semibold">Sync Data</p>
+                            <p className="text-white text-base font-semibold">Sync Data</p>
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-2.5 mb-4">
-                        <div className="flex justify-between text-xs">
+                        <div className="flex justify-between text-sm">
                             <span className="text-slate-500">Last Successful Sync</span>
                             <span className="text-slate-300">
                                 {user?.last_synced_at ? fmtDate(user.last_synced_at) : "Never"}
                             </span>
                         </div>
-                        <div className="flex justify-between text-xs">
+                        <div className="flex justify-between text-sm">
                             <span className="text-slate-500">Status</span>
                             <span className={`font-medium ${user?.gmail_connected ? "text-emerald-400" : "text-slate-400"}`}>
                                 {user?.gmail_connected ? "Active" : "Not connected"}
@@ -160,7 +160,7 @@ export default function SettingsPage() {
                         <button
                             onClick={handleSync}
                             disabled={syncing}
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-base font-medium transition-colors"
                         >
                             <svg className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
