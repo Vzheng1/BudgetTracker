@@ -79,7 +79,7 @@ export default function TransactionsPage() {
         new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount)
 
     const fmtDate = (date: string) =>
-        new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+        new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 
     const totalSpend = useMemo(() => transactions.reduce((s, t) => s + t.amount, 0), [transactions])
 
@@ -134,7 +134,7 @@ export default function TransactionsPage() {
                     <thead>
                         <tr className="border-b border-outline-variant">
                             <th className="text-left label-caps px-6 py-4">
-                                Merchant
+                                Merchant & Details
                             </th>
                             <th className="text-left label-caps px-6 py-4">
                                 Category
