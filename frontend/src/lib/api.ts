@@ -59,10 +59,12 @@ export const authApi = {
 
 export const transactionsApi = {
     // (1) Fetches all transactions, with optional filters
-    list: (params?: { category?: string; needs_review?: boolean }) => {
+    list: (params?: { category?: string; needs_review?: boolean; limit?: number; offset?: number }) => {
         const query = new URLSearchParams()
         if (params?.category) query.set("category", params.category)
         if (params?.needs_review) query.set("needs_review", "true")
+        if (params?.limit != null) query.set("limit", String(params.limit))
+        if (params?.offset != null) query.set("offset", String(params.offset))
         return request<{ total: number; limit: number; offset: number; transactions: any[] }>(`/api/v1/transactions?${query}`)
     },
 
