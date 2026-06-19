@@ -49,12 +49,6 @@ export default function SettingsPage() {
     return (
         <div className="flex flex-col gap-6">
 
-            {/* Header */}
-            <div>
-                <h1 className="text-xl font-bold text-white">Settings</h1>
-                <p className="text-slate-500 text-sm mt-0.5">Manage your account preferences, connected emails, and data synchronization</p>
-            </div>
-
             {/* Status message */}
             {message && (
                 <div className="bg-blue-900/20 border border-blue-800 text-blue-400 px-4 py-3 rounded-lg text-sm">
@@ -79,9 +73,6 @@ export default function SettingsPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors font-medium">
-                            Edit Profile
-                        </button>
                         <button
                             onClick={logout}
                             className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium"
@@ -178,47 +169,6 @@ export default function SettingsPage() {
                         </button>
                     )}
                 </div>
-            </div>
-
-            {/* Additional settings tiles */}
-            <div className="grid grid-cols-3 gap-4">
-                {[
-                    {
-                        title: "Security",
-                        desc: "2FA, password & keys",
-                        icon: (
-                            <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        ),
-                    },
-                    {
-                        title: "Alerts",
-                        desc: "Budget & limit notices",
-                        icon: (
-                            <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                        ),
-                    },
-                    {
-                        title: "Appearance",
-                        desc: "Theme & customization",
-                        icon: (
-                            <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                            </svg>
-                        ),
-                    },
-                ].map(({ title, desc, icon }) => (
-                    <div key={title} className="bg-slate-800 rounded-xl p-5 border border-slate-700/50 cursor-pointer hover:border-slate-600 transition-colors">
-                        <div className="w-9 h-9 bg-slate-700 rounded-lg flex items-center justify-center mb-3">
-                            {icon}
-                        </div>
-                        <p className="text-white text-sm font-semibold">{title}</p>
-                        <p className="text-slate-500 text-xs mt-0.5">{desc}</p>
-                    </div>
-                ))}
             </div>
 
         </div>

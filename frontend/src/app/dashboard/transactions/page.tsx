@@ -18,18 +18,6 @@ const CATEGORY_BADGE: Record<string, string> = {
     Other: "bg-surface-container-highest/50 text-on-surface-variant",
 }
 
-const CATEGORY_ICON: Record<string, string> = {
-    Food: "restaurant",
-    Shopping: "shopping_bag",
-    Transportation: "directions_car",
-    Entertainment: "movie",
-    Healthcare: "health_and_safety",
-    Utilities: "electric_bolt",
-    Travel: "flight",
-    Subscriptions: "subscriptions",
-    Other: "receipt",
-}
-
 export default function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([])
     const [total, setTotal] = useState(0)
@@ -128,7 +116,7 @@ export default function TransactionsPage() {
                     onClick={fetchTransactions}
                     className="btn-secondary"
                 >
-                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>refresh</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}></span>
                     Refresh Data
                 </button>
             </div>
@@ -186,7 +174,6 @@ export default function TransactionsPage() {
                         )}
                         {!loading && transactions.map((t) => {
                             const badge = CATEGORY_BADGE[t.category] ?? CATEGORY_BADGE.Other
-                            const icon = CATEGORY_ICON[t.category] ?? "receipt"
                             return (
                                 <tr
                                     key={t.id}
@@ -194,9 +181,6 @@ export default function TransactionsPage() {
                                 >
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0">
-                                                <span className="material-symbols-outlined text-primary" style={{ fontSize: "18px" }}>{icon}</span>
-                                            </div>
                                             <div>
                                                 <p className="text-on-surface text-sm font-medium">{t.merchant}</p>
                                                 {t.description && (
@@ -249,7 +233,7 @@ export default function TransactionsPage() {
                                 disabled={page === 0}
                                 className="btn-icon"
                             >
-                                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>chevron_left</span>
+                                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>l</span>
                             </button>
                             <span className="text-on-surface-variant text-xs px-2">{page + 1} / {totalPages || 1}</span>
                             <button
@@ -257,7 +241,7 @@ export default function TransactionsPage() {
                                 disabled={page >= totalPages - 1}
                                 className="btn-icon"
                             >
-                                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>chevron_right</span>
+                                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>r</span>
                             </button>
                         </div>
                     </div>

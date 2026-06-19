@@ -4,18 +4,6 @@ import { useState, useEffect } from "react"
 import { budgetsApi } from "@/lib/api"
 import { Budget, CATEGORIES } from "@/types"
 
-const CATEGORY_ICON: Record<string, string> = {
-    Food: "restaurant",
-    Shopping: "shopping_bag",
-    Transportation: "directions_car",
-    Entertainment: "movie",
-    Healthcare: "health_and_safety",
-    Utilities: "electric_bolt",
-    Travel: "flight",
-    Subscriptions: "subscriptions",
-    Other: "category",
-}
-
 export default function BudgetsPage() {
     const [budgets, setBudgets] = useState<Budget[]>([])
     const [showForm, setShowForm] = useState(false)
@@ -88,7 +76,7 @@ export default function BudgetsPage() {
                     onClick={() => setShowForm(!showForm)}
                     className="btn-primary"
                 >
-                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>{showForm ? "close" : "add"}</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}></span>
                     {showForm ? "Cancel" : "Add Budget"}
                 </button>
             </div>
@@ -191,21 +179,10 @@ export default function BudgetsPage() {
                     {/* Featured budget (first) — full width */}
                     {featuredBudget && (
                         <div className="col-span-2 relative overflow-hidden glass-card rounded-2xl p-6 luminous-glow">
-                            {/* Background icon */}
-                            <span
-                                className="material-symbols-outlined absolute -right-6 -bottom-6 text-primary/5 pointer-events-none select-none"
-                                style={{ fontSize: "140px" }}
-                            >
-                                {CATEGORY_ICON[featuredBudget.category] ?? "category"}
-                            </span>
                             <div className="relative z-10">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-2xl bg-primary-container/20 flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-primary" style={{ fontSize: "28px" }}>
-                                                {CATEGORY_ICON[featuredBudget.category] ?? "category"}
-                                            </span>
-                                        </div>
+                                        
                                         <div>
                                             <p className="text-on-surface font-semibold text-lg">{featuredBudget.category}</p>
                                             <p className="text-on-surface-variant text-sm">Monthly budget</p>
@@ -254,11 +231,7 @@ export default function BudgetsPage() {
                         <div key={budget.id} className="card-glass">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="icon-box">
-                                        <span className="material-symbols-outlined text-primary" style={{ fontSize: "20px" }}>
-                                            {CATEGORY_ICON[budget.category] ?? "category"}
-                                        </span>
-                                    </div>
+                                    
                                     <div>
                                         <p className="text-on-surface text-sm font-semibold">{budget.category}</p>
                                         <p className="text-on-surface-variant text-xs">Monthly budget</p>
@@ -329,9 +302,7 @@ export default function BudgetsPage() {
                                     >
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <span className="material-symbols-outlined text-primary" style={{ fontSize: "18px" }}>
-                                                    {CATEGORY_ICON[budget.category] ?? "category"}
-                                                </span>
+                                                
                                                 <span className="text-on-surface text-sm">{budget.category}</span>
                                             </div>
                                         </td>

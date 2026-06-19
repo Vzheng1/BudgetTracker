@@ -50,7 +50,7 @@
   --color-on-tertiary-fixed-variant:   #543196;
 
   --color-active-text:                 #00174C;
-  
+
   /* ── Error ────────────────────────────────────────────── */
   --color-error:                       #ffb4ab;
   --color-on-error:                    #690005;
@@ -102,10 +102,13 @@
   --text-label-caps--letter-spacing:     0.05em;
 }
 
-* {
-  box-sizing: border-box;
+html, body {
   margin: 0;
   padding: 0;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
@@ -171,7 +174,7 @@ body {
 }
 
 .btn-primary {
-  @apply flex items-center gap-2 bg-primary-container text-on-primary-container px-4 py-2 rounded-xl text-sm font-medium transition-all;
+  @apply flex items-center gap-1 bg-surface-container border border-primary-fixed-dim text-primary-fixed-dim px-4 py-2 rounded-4xl text-sm font-medium transition-all hover:bg-primary-fixed-dim hover:text-on-primary-fixed hover:border-primary-fixed-dim;
 }
 .btn-primary:hover { opacity: 0.9; }
 .btn-primary:active { transform: scale(0.98); }

@@ -52,12 +52,10 @@ export default function Sidebar() {
     return (
         <aside className="w-50 bg-background border-r border-slate-700/50 flex flex-col min-h-screen">
             {/* Logo */}
-            <div className="flex items-center justify-center pt-16 pb-16">
+            <div className="flex items-center justify-center pt-8 pb-5">
                 <div className="flex flex-col items-center text-center">
-                    <span className="text-background font-bold text-xl leading-tight">space</span>
                     <span className="text-on-surface font-bold text-4xl leading-tight">Budget</span>
                     <span className="text-on-surface font-bold text-4xl leading-tight">Tracker</span>
-                    <span className="text-background font-bold text-2xl leading-tight">space</span>
                 </div>
             </div>
 
@@ -69,7 +67,7 @@ export default function Sidebar() {
                         <Link
                             key={link.href}
                             href={link.href}
-                            className={`w-36 flex items-center gap-2.5 px-3 py-4 rounded-md text-base font-medium transition-colors ${
+                            className={`w-38 flex items-center gap-2 px-3 py-2.5 rounded-xl text-base font-medium transition-colors ${
                                 isActive
                                     ? "bg-primary-fixed-dim text-active-text"
                                     : "text-on-surface-variant hover:text-white hover:bg-slate-800"
@@ -83,10 +81,10 @@ export default function Sidebar() {
             </nav>
 
             {/* Bottom */}
-            <div className="items-center px-3 py-4 border-t border-slate-800 flex flex-col gap-1">
+            <div className="items-center py-3 border-t border-slate-800 flex flex-col gap-1">
                 <button
                     onClick={logout}
-                    className="w-31 flex items-center gap-3 px-16 pt-4 pb-7 rounded-lg text-lg font-medium text-on-surface-variant hover:text-red-400 transition-colors text-left"
+                    className="flex items-center gap-3 pt-2 pb-1 rounded-lg text-lg font-medium text-on-surface-variant hover:text-red-400 transition-colors text-left"
                 >
                     <svg className="w-8 h-8" fill="none" viewBox="-10 0 34 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

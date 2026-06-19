@@ -120,13 +120,7 @@ export default function DashboardPage() {
 
     return (
         <div className="flex flex-col gap-6">
-
-            {/* Page header */}
-            <div>
-                <h1 className="text-xl font-bold text-white">Dashboard</h1>
-                <p className="text-slate-500 text-sm mt-0.5">Your spending overview</p>
-            </div>
-
+            
             {/* Stat cards */}
             <div className="grid grid-cols-3 gap-4">
                 <div className="card-slate">
