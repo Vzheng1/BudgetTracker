@@ -50,7 +50,7 @@ export default function Sidebar() {
     const { logout } = useAuth()
 
     return (
-        <aside className="w-50 bg-background border-r border-slate-700/50 flex flex-col min-h-screen">
+        <aside className="w-50 bg-background border-r border-slate-700/50 flex flex-col h-screen">
             {/* Logo */}
             <div className="flex items-center justify-center pt-8 pb-5">
                 <div className="flex flex-col items-center text-center">
