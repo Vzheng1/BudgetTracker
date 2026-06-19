@@ -76,7 +76,14 @@ export const transactionsApi = {
             body: JSON.stringify({ category }),
         }),
 
-    // (3) Soft deletes a transaction by ID - marks as deleted, but doesn't remove from database
+    // (3) Creates a new transaction manually
+    create: (data: { merchant: string; amount: number; date: string; category: string; description?: string }) =>
+        request<any>("/api/v1/transactions", {
+            method: "POST",
+            body: JSON.stringify(data),
+        }),
+
+    // (4) Soft deletes a transaction by ID - marks as deleted, but doesn't remove from database
     delete: (id: string) =>
         request(`/api/v1/transactions/${id}`, { method: "DELETE" }),
 }

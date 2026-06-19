@@ -18,6 +18,14 @@ const CATEGORY_BADGE: Record<string, string> = {
     Other: "bg-surface-container-highest/50 text-on-surface-variant",
 }
 
+const EMPTY_FORM = {
+    merchant: "",
+    amount: "",
+    date: new Date().toISOString().slice(0, 10),
+    category: "Other" as string,
+    description: "",
+}
+
 export default function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([])
     const [total, setTotal] = useState(0)
@@ -25,6 +33,11 @@ export default function TransactionsPage() {
     const [page, setPage] = useState(0)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+
+    const [showModal, setShowModal] = useState(false)
+    const [form, setForm] = useState(EMPTY_FORM)
+    const [formError, setFormError] = useState("")
+    const [submitting, setSubmitting] = useState(false)
 
     useEffect(() => {
         setPage(0)
@@ -75,6 +88,37 @@ export default function TransactionsPage() {
         }
     }
 
+    const openModal = () => {
+        setForm({ ...EMPTY_FORM, date: new Date().toISOString().slice(0, 10) })
+        setFormError("")
+        setShowModal(true)
+    }
+
+    const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if (!form.merchant.trim()) { setFormError("Merchant is required"); return }
+        const amount = parseFloat(form.amount)
+        if (isNaN(amount) || amount <= 0) { setFormError("Enter a valid amount"); return }
+        setSubmitting(true)
+        setFormError("")
+        try {
+            const created = await transactionsApi.create({
+                merchant: form.merchant.trim(),
+                amount,
+                date: form.date,
+                category: form.category,
+                description: form.description.trim() || undefined,
+            })
+            setTransactions((prev) => [created, ...prev])
+            setTotal((n) => n + 1)
+            setShowModal(false)
+        } catch (err: any) {
+            setFormError(err.message || "Failed to create transaction")
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
     const fmt = (amount: number) =>
         new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount)
 
@@ -112,13 +156,16 @@ export default function TransactionsPage() {
                         ))}
                     </select>
                 </div>
-                <button
-                    onClick={fetchTransactions}
-                    className="btn-secondary"
-                >
-                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}></span>
-                    Refresh Data
-                </button>
+                <div className="flex items-center gap-2">
+                    <button onClick={openModal} className="btn-primary">
+                        <span className="material-symbols-outlined" style={{ fontSize: "16px" }}></span>
+                        Add Transaction
+                    </button>
+                    <button onClick={fetchTransactions} className="btn-secondary">
+                        <span className="material-symbols-outlined" style={{ fontSize: "16px" }}></span>
+                        Refresh Data
+                    </button>
+                </div>
             </div>
 
             {/* Error */}
@@ -274,6 +321,110 @@ export default function TransactionsPage() {
                         </div>
                         <p className="text-on-surface text-2xl font-bold">{needsReviewCount}</p>
                         <p className="text-on-surface-variant text-xs mt-1">Unverified transactions</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Transaction Modal */}
+            {showModal && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                    onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false) }}
+                >
+                    <div className="card-glass w-full max-w-md mx-4 p-6">
+                        <div className="flex items-center justify-between mb-5">
+                            <h2 className="text-on-surface text-lg font-semibold">Add Transaction</h2>
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="text-on-surface-variant hover:text-on-surface transition-colors"
+                            >
+                                <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>close</span>
+                            </button>
+                        </div>
+
+                        {formError && (
+                            <div className="alert-error mb-4">{formError}</div>
+                        )}
+
+                        <form onSubmit={handleCreate} className="flex flex-col gap-4">
+                            <div>
+                                <label className="label-caps block mb-1.5">Merchant</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Whole Foods"
+                                    value={form.merchant}
+                                    onChange={(e) => setForm((f) => ({ ...f, merchant: e.target.value }))}
+                                    className="w-full bg-surface-container border border-outline-variant text-on-surface px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-primary"
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="label-caps block mb-1.5">Amount (USD)</label>
+                                    <input
+                                        type="number"
+                                        min="0.01"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        value={form.amount}
+                                        onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
+                                        className="w-full bg-surface-container border border-outline-variant text-on-surface px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-primary"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="label-caps block mb-1.5">Date</label>
+                                    <input
+                                        type="date"
+                                        value={form.date}
+                                        onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+                                        className="w-full bg-surface-container border border-outline-variant text-on-surface px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-primary"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="label-caps block mb-1.5">Category</label>
+                                <select
+                                    value={form.category}
+                                    onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                                    className="w-full bg-surface-container border border-outline-variant text-on-surface-variant px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-primary cursor-pointer"
+                                >
+                                    {CATEGORIES.map((cat) => (
+                                        <option key={cat} value={cat}>{cat}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="label-caps block mb-1.5">Description <span className="normal-case text-on-surface-variant/60 font-normal">(optional)</span></label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Weekly groceries"
+                                    value={form.description}
+                                    onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                                    className="w-full bg-surface-container border border-outline-variant text-on-surface px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-primary"
+                                />
+                            </div>
+
+                            <div className="flex gap-3 pt-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
+                                    className="btn-secondary flex-1"
+                                    disabled={submitting}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn-primary flex-1"
+                                    disabled={submitting}
+                                >
+                                    {submitting ? "Saving…" : "Save Transaction"}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
