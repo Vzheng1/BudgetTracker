@@ -11,7 +11,7 @@ function CallbackHandler() {
         const token = searchParams.get("token")
         if (token) {
             localStorage.setItem("access_token", token)
-            router.push("/dashboard")
+            window.location.href = "/dashboard"
         } else {
             router.push("/login")
         }
