@@ -22,7 +22,7 @@ app = FastAPI(title="Budget Tracker API", lifespan=lifespan)
 #   - This is important for security and to allow our frontend to communicate with the backend without getting blocked
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=settings.allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
