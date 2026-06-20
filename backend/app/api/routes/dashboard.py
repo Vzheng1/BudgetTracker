@@ -159,6 +159,23 @@ async def get_dashboard(
         for row in trend_result.all()
     ]
 
+    # ── Yearly trend (all years, 5 most recent) ───────────────────────────────
+    yr = func.to_char(Transaction.date, literal('YYYY'))
+    yearly_result = await db.execute(
+        select(yr.label("year"), func.sum(Transaction.amount).label("total"))
+        .where(
+            Transaction.user_id == current_user.id,
+            Transaction.deleted_at == None,
+        )
+        .group_by(yr)
+        .order_by(yr.desc())
+        .limit(5)
+    )
+    yearly_trend = [
+        {"month": row.year, "total": float(row.total)}
+        for row in reversed(yearly_result.all())
+    ]
+
     return {
         "total_this_month": round(total_this_month, 2),
         "total_last_month": round(total_last_month, 2),
@@ -171,4 +188,5 @@ async def get_dashboard(
         "budgets": budget_data,
         "insights": insights,
         "monthly_trend": monthly_trend,
+        "yearly_trend": yearly_trend,
     }

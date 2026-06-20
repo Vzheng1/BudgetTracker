@@ -63,11 +63,6 @@ export default function LoginPage() {
                 />
             </svg>
 
-            {/* Navbar */}
-            <header className="relative z-10 flex items-center justify-between px-10 py-5">
-                <span className="text-white text-xl font-bold tracking-tight">Midnight Ledger</span>
-            </header>
-
             {/* Main content */}
             <main className="relative z-10 flex flex-1 items-center justify-center px-4">
                 <div className="w-full max-w-sm rounded-2xl p-8 flex flex-col items-center" style={{ backgroundColor: "rgba(22, 30, 50, 0.92)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -109,8 +104,8 @@ export default function LoginPage() {
 
             {/* Footer */}
             <footer className="relative z-10 flex items-center justify-between px-10 py-5">
-                <span className="text-slate-500 text-xs font-semibold tracking-widest uppercase">Midnight Ledger</span>
-                <span className="text-slate-500 text-xs">© 2026 Midnight Ledger.</span>
+                <span className="text-slate-500 text-xs font-semibold tracking-widest uppercase">Budget Tracker</span>
+                <span className="text-slate-500 text-xs">© 2026 Email Budget Tracker.</span>
                 <div className="flex items-center gap-3 text-slate-500">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
