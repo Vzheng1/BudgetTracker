@@ -13,7 +13,7 @@ function CallbackHandler() {
             localStorage.setItem("access_token", token)
             window.location.href = "/dashboard"
         } else {
-            router.push("/login")
+            router.push("/")
         }
     }, [searchParams, router])
 

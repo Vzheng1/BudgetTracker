@@ -27,7 +27,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     // Invalid response -> invalid token/ expired -> clear from storage and redirect to login 
     if (res.status === 401) {
         localStorage.removeItem("access_token")
-        window.location.href = "/login"
+        window.location.href = "/"
         throw new Error("Unauthorized")
     }
 
