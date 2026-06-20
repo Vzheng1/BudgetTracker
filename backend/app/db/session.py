@@ -4,7 +4,14 @@ from app.core.config import settings
 
 # Create the database engine using the database URL from settings 
 #   - This is the main connection to the database that will be used throughout the application
-engine = create_async_engine(settings.database_url)
+def _asyncpg_url(url: str) -> str:
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+asyncpg://", 1)
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return url
+
+engine = create_async_engine(_asyncpg_url(settings.database_url))
 
 # Create a new sessionmaker for the database sessions
 # - This will be used to create new database sessions for each request
