@@ -12,6 +12,8 @@ export default function BudgetsPage() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState("")
+    const [deleteTarget, setDeleteTarget] = useState<Budget | null>(null)
+    const [deleting, setDeleting] = useState(false)
 
     useEffect(() => { fetchBudgets() }, [])
 
@@ -45,13 +47,19 @@ export default function BudgetsPage() {
         }
     }
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Delete this budget?")) return
+    const handleDelete = (budget: Budget) => setDeleteTarget(budget)
+
+    const confirmDelete = async () => {
+        if (!deleteTarget) return
         try {
-            await budgetsApi.delete(id)
-            setBudgets(budgets.filter((b) => b.id !== id))
+            setDeleting(true)
+            await budgetsApi.delete(deleteTarget.id)
+            setBudgets(budgets.filter((b) => b.id !== deleteTarget.id))
+            setDeleteTarget(null)
         } catch (err: any) {
             setError(err.message || "Failed to delete budget")
+        } finally {
+            setDeleting(false)
         }
     }
 
@@ -70,6 +78,19 @@ export default function BudgetsPage() {
     }
     const categoryColor = (cat: string) => CATEGORY_COLORS[cat] ?? "#64748b"
 
+    const CATEGORY_ICONS: Record<string, string> = {
+        Food: "restaurant",
+        Shopping: "shopping_bag",
+        Transportation: "directions_car",
+        Entertainment: "movie",
+        Healthcare: "health_and_safety",
+        Utilities: "bolt",
+        Travel: "flight",
+        Subscriptions: "subscriptions",
+        Other: "category",
+    }
+    const categoryIcon = (cat: string) => CATEGORY_ICONS[cat] ?? "category"
+
 
 
     const totalAllocated = budgets.reduce((sum, b) => sum + b.limit_amount, 0)
@@ -82,13 +103,26 @@ export default function BudgetsPage() {
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Header actions */}
-            <div className="flex items-center justify-end">
+            {/* Header — total allocated left, button bottom-aligned right */}
+            <div className="flex items-end justify-between">
+                <div>
+                    <p className="label-caps mb-1">Total Allocated</p>
+                    {!loading && budgets.length > 0 ? (
+                        <>
+                            <p className="text-on-surface font-bold font-mono-money" style={{ fontSize: "48px", lineHeight: "56px" }}>{fmt(totalAllocated)}</p>
+                            <p className="text-on-surface-variant text-sm mt-1">
+                                {fmt(totalSpent)} spent · {overallPct.toFixed(0)}% utilization
+                            </p>
+                        </>
+                    ) : (
+                        <p className="text-on-surface font-bold" style={{ fontSize: "48px", lineHeight: "56px" }}>$0.00</p>
+                    )}
+                </div>
                 <button
                     onClick={() => setShowForm(!showForm)}
                     className="btn-primary"
                 >
-                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}></span>
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>{showForm ? "close" : "add"}</span>
                     {showForm ? "Cancel" : "Add Budget"}
                 </button>
             </div>
@@ -97,43 +131,6 @@ export default function BudgetsPage() {
             {error && (
                 <div className="alert-error">
                     {error}
-                </div>
-            )}
-
-            {/* Total Allocated summary */}
-            {!loading && budgets.length > 0 && (
-                <div className="glass-card rounded-2xl p-6 luminous-glow">
-                    <div className="flex items-end justify-between mb-4">
-                        <div>
-                            <p className="label-caps mb-1">Total Allocated</p>
-                            <p className="text-on-surface font-bold" style={{ fontSize: "36px", lineHeight: "44px" }}>{fmt(totalAllocated)}</p>
-                            <p className="text-on-surface-variant text-sm mt-1">
-                                {fmt(totalSpent)} spent · {overallPct.toFixed(0)}% utilization
-                            </p>
-                        </div>
-                        <div className="text-right">
-                            <p className="text-on-surface-variant text-xs mb-1">Active Budgets</p>
-                            <p className="text-on-surface text-3xl font-bold">{budgets.length}</p>
-                        </div>
-                    </div>
-                    {/* Segmented bar — one segment per category */}
-                    <div className="flex rounded-full overflow-hidden h-2 gap-px">
-                        {budgets.map((b) => (
-                            <div
-                                key={b.id}
-                                style={{ width: `${(b.limit_amount / totalAllocated) * 100}%`, backgroundColor: categoryColor(b.category) }}
-                            />
-                        ))}
-                    </div>
-                    {/* Legend */}
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3">
-                        {budgets.map((b) => (
-                            <div key={b.id} className="flex items-center gap-1.5">
-                                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: categoryColor(b.category) }} />
-                                <span className="text-on-surface-variant text-xs">{b.category}</span>
-                            </div>
-                        ))}
-                    </div>
                 </div>
             )}
 
@@ -199,37 +196,39 @@ export default function BudgetsPage() {
 
             {/* Bento grid */}
             {!loading && budgets.length > 0 && (
-                <div className="grid grid-cols-2 gap-4">
-                    {/* Featured budget (first) — full width */}
+                <div className="grid grid-cols-3 gap-4">
+                    {/* Featured budget — spans 2 cols */}
                     {featuredBudget && (
                         <div className="col-span-2 relative overflow-hidden glass-card rounded-2xl p-6 luminous-glow" style={{ borderTop: `3px solid ${categoryColor(featuredBudget.category)}` }}>
                             <div className="relative z-10">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-4">
-                                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: categoryColor(featuredBudget.category) }} />
+                                        <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${categoryColor(featuredBudget.category)}20` }}>
+                                            <span className="material-symbols-outlined" style={{ fontSize: "24px", color: categoryColor(featuredBudget.category) }}>{categoryIcon(featuredBudget.category)}</span>
+                                        </div>
                                         <div>
-                                            <p className="text-on-surface font-semibold text-lg">{featuredBudget.category}</p>
-                                            <p className="text-on-surface-variant text-sm">Monthly budget</p>
+                                            <p className="text-on-surface font-semibold text-xl">{featuredBudget.category}</p>
+                                            <p className="text-on-surface-variant text-base">Monthly budget</p>
                                         </div>
                                     </div>
                                     <button
-                                        onClick={() => handleDelete(featuredBudget.id)}
+                                        onClick={() => handleDelete(featuredBudget)}
                                         className="text-on-surface-variant hover:text-error transition-colors"
                                         title="Remove budget"
                                     >
-                                        <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>close</span>
+                                        <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>delete</span>
                                     </button>
                                 </div>
                                 <div className="flex items-end justify-between mb-4">
                                     <div>
-                                        <p className="text-on-surface-variant text-xs mb-1">Spent</p>
-                                        <p className="font-bold text-on-surface" style={{ fontSize: "32px" }}>
+                                        <p className="text-on-surface-variant text-sm mb-1">Spent</p>
+                                        <p className="font-bold text-on-surface" style={{ fontSize: "40px", fontFamily: "'Hanken Grotesk', sans-serif" }}>
                                             {fmt(featuredBudget.spent)}
                                         </p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-on-surface-variant text-xs mb-1">Limit</p>
-                                        <p className="text-on-surface text-2xl font-semibold">{fmt(featuredBudget.limit_amount)}</p>
+                                        <p className="text-on-surface-variant text-sm mb-1">Limit</p>
+                                        <p className="text-3xl font-bold" style={{ fontFamily: "'Hanken Grotesk', sans-serif", color: "rgba(255,255,255,0.6)" }}>{fmt(featuredBudget.limit_amount)}</p>
                                     </div>
                                 </div>
                                 <div className="progress-track mb-2">
@@ -241,9 +240,9 @@ export default function BudgetsPage() {
                                         }}
                                     />
                                 </div>
-                                <div className="flex justify-between text-xs text-on-surface-variant">
-                                    <span>{featuredBudget.utilization_pct.toFixed(0)}% used</span>
-                                    <span>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-on-surface-variant">{featuredBudget.utilization_pct.toFixed(0)}% used</span>
+                                    <span className="font-medium" style={{ color: categoryColor(featuredBudget.category), fontFamily: "'JetBrains Mono', monospace" }}>
                                         {featuredBudget.remaining >= 0
                                             ? `${fmt(featuredBudget.remaining)} remaining`
                                             : `${fmt(Math.abs(featuredBudget.remaining))} over budget`}
@@ -253,35 +252,37 @@ export default function BudgetsPage() {
                         </div>
                     )}
 
-                    {/* Rest of budgets */}
+                    {/* Rest of budgets — 1 col each, up to 3 per row */}
                     {restBudgets.map((budget) => (
                         <div key={budget.id} className="card-glass" style={{ borderTop: `3px solid ${categoryColor(budget.category)}` }}>
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: categoryColor(budget.category) }} />
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${categoryColor(budget.category)}20` }}>
+                                        <span className="material-symbols-outlined" style={{ fontSize: "20px", color: categoryColor(budget.category) }}>{categoryIcon(budget.category)}</span>
+                                    </div>
                                     <div>
-                                        <p className="text-on-surface text-sm font-semibold">{budget.category}</p>
-                                        <p className="text-on-surface-variant text-xs">Monthly budget</p>
+                                        <p className="text-on-surface text-base font-semibold">{budget.category}</p>
+                                        <p className="text-on-surface-variant text-sm">Monthly budget</p>
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => handleDelete(budget.id)}
+                                    onClick={() => handleDelete(budget)}
                                     className="text-on-surface-variant hover:text-error transition-colors"
                                     title="Remove budget"
                                 >
-                                    <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>close</span>
+                                    <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>delete</span>
                                 </button>
                             </div>
                             <div className="flex items-end justify-between mb-3">
                                 <div>
-                                    <p className="text-on-surface-variant text-xs">Spent</p>
-                                    <p className="text-xl font-bold text-on-surface">
+                                    <p className="text-on-surface-variant text-sm">Spent</p>
+                                    <p className="text-2xl font-bold text-on-surface" style={{ fontFamily: "'Hanken Grotesk', sans-serif" }}>
                                         {fmt(budget.spent)}
                                     </p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-on-surface-variant text-xs">Limit</p>
-                                    <p className="text-on-surface text-sm font-medium">{fmt(budget.limit_amount)}</p>
+                                    <p className="text-on-surface-variant text-sm">Limit</p>
+                                    <p className="text-base font-bold" style={{ fontFamily: "'Hanken Grotesk', sans-serif", color: "rgba(255,255,255,0.6)" }}>{fmt(budget.limit_amount)}</p>
                                 </div>
                             </div>
                             <div className="w-full bg-surface-container-high rounded-full h-1.5 mb-2">
@@ -293,11 +294,11 @@ export default function BudgetsPage() {
                                     }}
                                 />
                             </div>
-                            <div className="flex justify-between text-xs text-on-surface-variant">
-                                <span>{budget.utilization_pct.toFixed(0)}% used</span>
-                                <span>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-on-surface-variant">{budget.utilization_pct.toFixed(0)}% used</span>
+                                <span className="font-medium" style={{ color: categoryColor(budget.category), fontFamily: "'JetBrains Mono', monospace" }}>
                                     {budget.remaining >= 0
-                                        ? `${fmt(budget.remaining)} remaining`
+                                        ? `${fmt(budget.remaining)} left`
                                         : `${fmt(Math.abs(budget.remaining))} over`}
                                 </span>
                             </div>
@@ -332,12 +333,12 @@ export default function BudgetsPage() {
                                     >
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: categoryColor(budget.category) }} />
+                                                <span className="material-symbols-outlined" style={{ fontSize: "16px", color: categoryColor(budget.category) }}>{categoryIcon(budget.category)}</span>
                                                 <span className="text-on-surface text-sm">{budget.category}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right text-on-surface text-sm font-mono">{fmt(budget.spent)}</td>
-                                        <td className="px-6 py-4 text-right text-on-surface-variant text-sm font-mono">{fmt(budget.limit_amount)}</td>
+                                        <td className="px-6 py-4 text-right text-on-surface text-sm font-mono-money">{fmt(budget.spent)}</td>
+                                        <td className="px-6 py-4 text-right text-on-surface-variant text-sm font-mono-money">{fmt(budget.limit_amount)}</td>
                                         <td className="px-6 py-4 text-right">
                                             <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                                                 budget.utilization_pct >= 100
@@ -353,6 +354,50 @@ export default function BudgetsPage() {
                                 ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+            {/* Delete confirmation modal */}
+            {deleteTarget && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                    onClick={(e) => { if (e.target === e.currentTarget) setDeleteTarget(null) }}
+                >
+                    <div className="card-glass w-full max-w-sm mx-4 p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-error/10 flex items-center justify-center shrink-0">
+                                <span className="material-symbols-outlined text-error" style={{ fontSize: "20px" }}>delete</span>
+                            </div>
+                            <div>
+                                <h2 className="text-on-surface text-base font-semibold">Delete Budget</h2>
+                                <p className="text-on-surface-variant text-xs mt-0.5">This action cannot be undone</p>
+                            </div>
+                        </div>
+
+                        <p className="text-on-surface-variant text-sm mb-6">
+                            Are you sure you want to delete the{" "}
+                            <span className="font-semibold" style={{ color: categoryColor(deleteTarget.category) }}>
+                                {deleteTarget.category}
+                            </span>{" "}
+                            budget? Your transaction history will not be affected.
+                        </p>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setDeleteTarget(null)}
+                                className="btn-secondary flex-1"
+                                disabled={deleting}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                disabled={deleting}
+                                className="flex-1 flex items-center justify-center gap-2 bg-error/20 hover:bg-error/30 disabled:opacity-50 text-error border border-error/30 hover:border-error/60 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                            >
+                                {deleting ? "Deleting..." : "Delete"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

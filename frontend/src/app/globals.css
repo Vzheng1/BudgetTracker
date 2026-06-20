@@ -182,10 +182,16 @@ body {
 }
 
 .btn-primary {
-  @apply flex items-center gap-1 bg-surface-container border border-primary-fixed-dim text-primary-fixed-dim px-4 py-2 rounded-4xl text-sm font-medium transition-all hover:bg-primary-fixed-dim hover:text-on-primary-fixed hover:border-primary-fixed-dim;
+  @apply flex items-center gap-1 bg-primary-fixed-dim border border-primary-fixed-dim text-on-primary-fixed px-4 py-2 rounded-4xl text-sm font-medium transition-all;
 }
 .btn-primary:hover { opacity: 0.9; }
 .btn-primary:active { transform: scale(0.98); }
+
+.btn-ghost {
+  @apply flex items-center gap-1 bg-transparent border border-primary-fixed-dim text-primary-fixed-dim px-4 py-2 rounded-4xl text-sm font-medium transition-all;
+}
+.btn-ghost:hover { opacity: 0.8; }
+.btn-ghost:active { transform: scale(0.98); }
 
 .btn-secondary {
   @apply flex items-center gap-2 bg-surface-container border border-outline-variant text-on-surface-variant px-4 py-2 rounded-xl text-sm font-medium transition-all;
@@ -217,6 +223,10 @@ body {
 
 .alert-error {
   @apply bg-error-container/20 border border-error-container text-error px-4 py-3 rounded-xl text-sm;
+}
+
+.font-mono-money {
+  font-family: "Manrope", sans-serif;
 }
 
 .hide-scrollbar::-webkit-scrollbar { display: none; }

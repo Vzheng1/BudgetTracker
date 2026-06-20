@@ -41,12 +41,12 @@ function TopBar() {
                 <button
                     onClick={handleSync}
                     disabled={syncing}
-                    className="btn-primary disabled:opacity-60 "
+                    className="btn-ghost disabled:opacity-60"
                 >
                     <span
                         className={`material-symbols-outlined ${syncing ? "animate-spin" : ""}`}
                         style={{ fontSize: "16px" }}
-                    ></span>
+                    >sync</span>
                     {syncing ? "Syncing..." : "Sync Data"}
                 </button>
                 <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold select-none">
