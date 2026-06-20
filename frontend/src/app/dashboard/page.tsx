@@ -123,7 +123,7 @@ export default function DashboardPage() {
             
             {/* Stat cards */}
             <div className="grid grid-cols-3 gap-4">
-                <div className="card-slate">
+                <div className="card-slate custom-glow">
                     <p className="text-slate-400 text-xs font-medium uppercase tracking-wide">Total Spent</p>
                     <p className="text-2xl font-bold text-white mt-2">{fmt(data.total_this_month)}</p>
                     {data.total_last_month > 0 && (
@@ -133,13 +133,13 @@ export default function DashboardPage() {
                     )}
                 </div>
 
-                <div className="card-slate">
+                <div className="card-slate custom-glow">
                     <p className="text-slate-400 text-xs font-medium uppercase tracking-wide">Transactions</p>
                     <p className="text-2xl font-bold text-white mt-2">{data.transaction_count}</p>
                     <p className="text-slate-500 text-xs mt-1.5">This month</p>
                 </div>
 
-                <div className="card-slate">
+                <div className="card-slate custom-glow">
                     <p className="text-slate-400 text-xs font-medium uppercase tracking-wide">Top Category</p>
                     <p className="text-2xl font-bold text-white mt-2">{data.top_category ?? "—"}</p>
                     <p className="text-slate-500 text-xs mt-1.5">This month</p>

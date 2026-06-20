@@ -57,8 +57,20 @@ export default function BudgetsPage() {
 
     const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n)
 
-    const barColor = (p: number) => p >= 80 ? "bg-error" : "bg-secondary-fixed-dim"
-    const textColor = (p: number) => p >= 80 ? "text-error" : "text-secondary-fixed-dim"
+    const CATEGORY_COLORS: Record<string, string> = {
+        Food: "#f97316",
+        Shopping: "#8b5cf6",
+        Transportation: "#3b82f6",
+        Entertainment: "#ec4899",
+        Healthcare: "#10b981",
+        Utilities: "#f59e0b",
+        Travel: "#06b6d4",
+        Subscriptions: "#6366f1",
+        Other: "#64748b",
+    }
+    const categoryColor = (cat: string) => CATEGORY_COLORS[cat] ?? "#64748b"
+
+
 
     const totalAllocated = budgets.reduce((sum, b) => sum + b.limit_amount, 0)
     const totalSpent = budgets.reduce((sum, b) => sum + b.spent, 0)
@@ -104,11 +116,23 @@ export default function BudgetsPage() {
                             <p className="text-on-surface text-3xl font-bold">{budgets.length}</p>
                         </div>
                     </div>
-                    <div className="progress-track">
-                        <div
-                            className={`h-2 rounded-full transition-all ${overallPct >= 80 ? "bg-error" : "bg-secondary-fixed-dim"}`}
-                            style={{ width: `${Math.min(overallPct, 100)}%` }}
-                        />
+                    {/* Segmented bar — one segment per category */}
+                    <div className="flex rounded-full overflow-hidden h-2 gap-px">
+                        {budgets.map((b) => (
+                            <div
+                                key={b.id}
+                                style={{ width: `${(b.limit_amount / totalAllocated) * 100}%`, backgroundColor: categoryColor(b.category) }}
+                            />
+                        ))}
+                    </div>
+                    {/* Legend */}
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3">
+                        {budgets.map((b) => (
+                            <div key={b.id} className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: categoryColor(b.category) }} />
+                                <span className="text-on-surface-variant text-xs">{b.category}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}
@@ -178,11 +202,11 @@ export default function BudgetsPage() {
                 <div className="grid grid-cols-2 gap-4">
                     {/* Featured budget (first) — full width */}
                     {featuredBudget && (
-                        <div className="col-span-2 relative overflow-hidden glass-card rounded-2xl p-6 luminous-glow">
+                        <div className="col-span-2 relative overflow-hidden glass-card rounded-2xl p-6 luminous-glow" style={{ borderTop: `3px solid ${categoryColor(featuredBudget.category)}` }}>
                             <div className="relative z-10">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-4">
-                                        
+                                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: categoryColor(featuredBudget.category) }} />
                                         <div>
                                             <p className="text-on-surface font-semibold text-lg">{featuredBudget.category}</p>
                                             <p className="text-on-surface-variant text-sm">Monthly budget</p>
@@ -199,7 +223,7 @@ export default function BudgetsPage() {
                                 <div className="flex items-end justify-between mb-4">
                                     <div>
                                         <p className="text-on-surface-variant text-xs mb-1">Spent</p>
-                                        <p className={`font-bold ${textColor(featuredBudget.utilization_pct)}`} style={{ fontSize: "32px" }}>
+                                        <p className="font-bold text-on-surface" style={{ fontSize: "32px" }}>
                                             {fmt(featuredBudget.spent)}
                                         </p>
                                     </div>
@@ -210,8 +234,11 @@ export default function BudgetsPage() {
                                 </div>
                                 <div className="progress-track mb-2">
                                     <div
-                                        className={`h-2 rounded-full transition-all ${barColor(featuredBudget.utilization_pct)}`}
-                                        style={{ width: `${Math.min(featuredBudget.utilization_pct, 100)}%` }}
+                                        className="h-2 rounded-full transition-all"
+                                        style={{
+                                            width: `${Math.min(featuredBudget.utilization_pct, 100)}%`,
+                                            backgroundColor: featuredBudget.utilization_pct >= 80 ? "var(--color-error)" : categoryColor(featuredBudget.category),
+                                        }}
                                     />
                                 </div>
                                 <div className="flex justify-between text-xs text-on-surface-variant">
@@ -228,10 +255,10 @@ export default function BudgetsPage() {
 
                     {/* Rest of budgets */}
                     {restBudgets.map((budget) => (
-                        <div key={budget.id} className="card-glass">
+                        <div key={budget.id} className="card-glass" style={{ borderTop: `3px solid ${categoryColor(budget.category)}` }}>
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    
+                                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: categoryColor(budget.category) }} />
                                     <div>
                                         <p className="text-on-surface text-sm font-semibold">{budget.category}</p>
                                         <p className="text-on-surface-variant text-xs">Monthly budget</p>
@@ -248,7 +275,7 @@ export default function BudgetsPage() {
                             <div className="flex items-end justify-between mb-3">
                                 <div>
                                     <p className="text-on-surface-variant text-xs">Spent</p>
-                                    <p className={`text-xl font-bold ${textColor(budget.utilization_pct)}`}>
+                                    <p className="text-xl font-bold text-on-surface">
                                         {fmt(budget.spent)}
                                     </p>
                                 </div>
@@ -259,8 +286,11 @@ export default function BudgetsPage() {
                             </div>
                             <div className="w-full bg-surface-container-high rounded-full h-1.5 mb-2">
                                 <div
-                                    className={`h-1.5 rounded-full transition-all ${barColor(budget.utilization_pct)}`}
-                                    style={{ width: `${Math.min(budget.utilization_pct, 100)}%` }}
+                                    className="h-1.5 rounded-full transition-all"
+                                    style={{
+                                        width: `${Math.min(budget.utilization_pct, 100)}%`,
+                                        backgroundColor: budget.utilization_pct >= 80 ? "var(--color-error)" : categoryColor(budget.category),
+                                    }}
                                 />
                             </div>
                             <div className="flex justify-between text-xs text-on-surface-variant">
@@ -302,7 +332,7 @@ export default function BudgetsPage() {
                                     >
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                
+                                                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: categoryColor(budget.category) }} />
                                                 <span className="text-on-surface text-sm">{budget.category}</span>
                                             </div>
                                         </td>

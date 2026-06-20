@@ -57,7 +57,7 @@ export default function SettingsPage() {
             )}
 
             {/* Profile */}
-            <div className="bg-slate-800 rounded-xl p-5 border border-slate-700/50">
+            <div className="card-slate">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         {user?.picture ? (
@@ -87,7 +87,7 @@ export default function SettingsPage() {
             <div className="grid grid-cols-2 gap-4">
 
                 {/* Gmail Connection */}
-                <div className="bg-slate-800 rounded-xl p-5 border border-slate-700/50">
+                <div className="card-slate">
                     <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
                             {/* Gmail icon */}
@@ -129,7 +129,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Sync Data */}
-                <div className="bg-slate-800 rounded-xl p-5 border border-slate-700/50">
+                <div className="card-slate">
                     <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
