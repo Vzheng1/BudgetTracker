@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import field_validator
 from functools import lru_cache
 
 class Settings(BaseSettings):
@@ -27,14 +26,7 @@ class Settings(BaseSettings):
 
     # Comma-separated list of allowed CORS origins
     # In production set ALLOWED_ORIGINS=https://your-app.vercel.app,https://other-origin.com
-    allowed_origins: list[str] = ["http://localhost:3000"]
-
-    @field_validator("allowed_origins", mode="before")
-    @classmethod
-    def parse_allowed_origins(cls, v: object) -> object:
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
-        return v
+    allowed_origins: str = "http://localhost:3000"
 
 # lru_cache decorator to cache the settings object -> So function only runs once per process + every call after returns cached object
 @lru_cache
